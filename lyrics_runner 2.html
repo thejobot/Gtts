@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>イノチミジカシコイセヨオトメ - Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0c;--surface:#131318;--surface2:#1a1a22;--border:#232330;--border-light:#2e2e3e;--text:#e2e2e8;--text-muted:#8888a0;--text-dim:#5c5c72;--accent:#b794f6;--accent-dim:#7c5cbf;--blue:#60a5fa;--green:#6ee7b7;--orange:#fbbf24;--teal:#5eead4}
+body{font-family:'DM Sans','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:rgba(183,148,246,.15)}
+.header{text-align:center;padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.header h1{font-family:'Noto Sans JP',sans-serif;font-size:1.3rem;font-weight:700;color:#fff;letter-spacing:.06em}
+.header .artist{font-size:.78rem;color:var(--accent);margin-top:2px;font-weight:500}
+.tts-status{text-align:center;padding:8px 12px;font-size:.7rem;color:var(--text-dim);background:var(--surface);border-bottom:1px solid var(--border)}
+.tts-row{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.dot.ready{background:var(--green)}.dot.unavailable{background:#ef4444}
+.voice-label{font-size:.68rem;color:var(--text-dim)}
+.voice-label strong{color:var(--text-muted)}
+.switch-btn{background:var(--surface2);border:1px solid var(--border);color:var(--accent);font-size:.65rem;padding:2px 6px;border-radius:4px;cursor:pointer;font-family:inherit}
+.switch-btn.en-switch{color:var(--blue)}
+.tab-nav{display:flex;gap:2px;padding:10px 8px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--bg);position:sticky;top:0;z-index:10}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-dim);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.content-area{max-width:860px;margin:0 auto;padding:16px 10px 80px}
+.tab-panel{display:none;animation:fadeIn .25s ease}.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Section header button */
+.section-btn{display:flex;align-items:center;gap:14px;width:100%;padding:18px 16px;background:linear-gradient(135deg,rgba(96,165,250,.08),rgba(183,148,246,.06));border:1px solid var(--border);border-radius:14px;cursor:pointer;text-align:left;transition:all .12s;-webkit-user-select:none;user-select:none;margin-bottom:16px;min-height:68px}
+.section-btn:active{transform:scale(.97);background:rgba(96,165,250,.15);border-color:var(--blue)}
+.section-btn.playing{border-color:var(--blue);background:rgba(96,165,250,.1)}
+.section-btn .sb-icon{flex-shrink:0;width:44px;height:44px;border-radius:50%;background:rgba(96,165,250,.18);display:flex;align-items:center;justify-content:center}
+.section-btn .sb-icon svg{width:18px;height:18px;fill:var(--blue);margin-left:2px}
+.section-btn .sb-text{flex:1}
+.section-btn .sb-title{font-size:1.05rem;font-weight:600;color:#fff;display:block}
+.section-btn .sb-desc{font-size:.82rem;color:var(--text-muted);display:block;margin-top:2px;line-height:1.4}
+.section-btn .sb-tag{flex-shrink:0;font-size:.6rem;font-weight:700;color:var(--blue);background:rgba(96,165,250,.1);padding:3px 7px;border-radius:4px}
+
+/* Line separator */
+.line-sep{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin:18px 0 10px;padding:8px 0;border-top:1px solid var(--border)}
+
+/* ═══ WORD TILE GRID ═══ */
+.word-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+
+/* JP tile */
+.tile-jp{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:all .12s;text-align:center;min-height:88px;-webkit-user-select:none;user-select:none}
+.tile-jp:active{transform:scale(.95);background:rgba(183,148,246,.15);border-color:var(--accent)}
+.tile-jp.playing{border-color:var(--accent);background:rgba(183,148,246,.12)}
+.tile-jp .tj-word{font-family:'Noto Sans JP',sans-serif;font-size:1.3rem;color:#fff;font-weight:700}
+.tile-jp .tj-rom{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent-dim);margin-top:3px}
+.tile-jp .tj-tag{font-size:.55rem;font-weight:700;color:var(--accent);background:rgba(183,148,246,.12);padding:2px 6px;border-radius:3px;margin-top:6px;letter-spacing:.04em}
+
+/* EN tile */
+.tile-en{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 10px;background:var(--surface);border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:all .12s;text-align:center;min-height:88px;-webkit-user-select:none;user-select:none}
+.tile-en:active{transform:scale(.95);background:rgba(96,165,250,.12);border-color:var(--blue)}
+.tile-en.playing{border-color:var(--blue);background:rgba(96,165,250,.1)}
+.tile-en .te-text{font-size:.85rem;color:var(--text-muted);line-height:1.4}
+.tile-en .te-tag{font-size:.55rem;font-weight:700;color:var(--blue);background:rgba(96,165,250,.1);padding:2px 6px;border-radius:3px;margin-top:6px;letter-spacing:.04em}
+
+/* Particle tiles */
+.tile-jp.particle{background:rgba(251,191,36,.04);border-color:rgba(251,191,36,.15)}
+.tile-jp.particle:active{background:rgba(251,191,36,.12);border-color:var(--orange)}
+.tile-jp.particle.playing{border-color:var(--orange);background:rgba(251,191,36,.1)}
+.tile-jp.particle .tj-word{color:var(--orange)}
+.tile-jp.particle .tj-tag{color:var(--orange);background:rgba(251,191,36,.1)}
+.tile-en.particle{background:rgba(251,191,36,.02);border-color:rgba(251,191,36,.1)}
+.tile-en.particle:active{background:rgba(251,191,36,.08);border-color:var(--orange)}
+.tile-en.particle.playing{border-color:var(--orange);background:rgba(251,191,36,.08)}
+.tile-en.particle .te-tag{color:var(--orange);background:rgba(251,191,36,.1)}
+
+/* Notes */
+.note{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin:12px 0;font-size:.8rem;color:var(--text-muted);line-height:1.65}
+.note strong{color:var(--accent);font-weight:600}
+
+/* Grammar */
+.grammar-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:10px}
+.grammar-card .pattern{font-family:'Noto Sans JP',sans-serif;font-size:.92rem;color:var(--green);font-weight:600;margin-bottom:4px}
+.grammar-card .explanation{font-size:.8rem;color:var(--text-muted);line-height:1.6}
+.grammar-card .example{font-family:'Noto Sans JP',sans-serif;color:#ccc;margin-top:8px;font-size:.84rem;padding:8px 12px;background:var(--bg);border-radius:6px;border-left:2px solid var(--green)}
+
+/* Nav */
+.nav-row{display:flex;justify-content:space-between;margin-top:24px;padding-top:14px;border-top:1px solid var(--border);gap:10px}
+.nav-btn{display:flex;align-items:center;justify-content:center;gap:6px;flex:1;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .12s;min-height:52px}
+.nav-btn:active{transform:scale(.96);background:var(--surface2)}
+.nav-btn:disabled{opacity:.25;pointer-events:none}
+
+/* Voice picker */
+.voice-picker{background:var(--surface);border:1px solid var(--border-light);border-radius:8px;padding:8px;margin-top:8px;display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.vp-btn{background:var(--bg);border:1px solid var(--border);color:var(--text-muted);font-size:.7rem;padding:6px 10px;border-radius:6px;cursor:pointer;font-family:inherit}
+.vp-btn.active{background:var(--accent-dim);border-color:var(--accent);color:#fff}
+.vp-btn.en-active{background:rgba(96,165,250,.2);border-color:var(--blue);color:#fff}
+
+@media(max-width:600px){.header{padding:18px 12px 12px}.header h1{font-size:1.15rem}.content-area{padding:14px 8px 60px}.tile-jp .tj-word{font-size:1.15rem}.tile-jp,.tile-en{min-height:78px;padding:14px 8px}.section-btn{padding:14px 12px}.section-btn .sb-title{font-size:.95rem}}
+</style>
+</head>
+<body>
+<div class="header"><h1>イノチミジカシコイセヨオトメ</h1><div class="artist">クリープハイプ · 尾崎世界観</div></div>
+<div class="tts-status"><span class="dot ready"></span> HD Audio · Google Neural2</div>
+<nav class="tab-nav">
+<button class="tab-btn active" data-tab="title">Title</button>
+<button class="tab-btn" data-tab="v1">Verse 1</button>
+<button class="tab-btn" data-tab="v2">Verse 2</button>
+<button class="tab-btn" data-tab="ch1">Chorus</button>
+<button class="tab-btn" data-tab="v3">Verse 3</button>
+<button class="tab-btn" data-tab="ch2">Chorus 2</button>
+<button class="tab-btn" data-tab="outro">Outro</button>
+<button class="tab-btn" data-tab="grammar">Grammar</button>
+</nav>
+<div class="content-area">
+
+<!-- ═══ TITLE ═══ -->
+<div class="tab-panel active" id="panel-title">
+<button class="section-btn" onclick="speakEN('Title breakdown. Life is short, fall in love, maiden. From a 1915 song, rewritten in raw katakana.',this)">
+<div class="sb-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+<div class="sb-text"><span class="sb-title">Title Breakdown</span><span class="sb-desc">"Life is short, fall in love, maiden"</span></div>
+<span class="sb-tag">EN</span></button>
+
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('イノチ',this)"><div class="tj-word">イノチ</div><div class="tj-rom">inochi</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('life or lifespan',this)"><div class="te-text">life / lifespan</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('ミジカシ',this)"><div class="tj-word">ミジカシ</div><div class="tj-rom">mijikashi</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('is short. Classical Japanese form',this)"><div class="te-text">is short (classical)</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('コイセヨ',this)"><div class="tj-word">コイセヨ</div><div class="tj-rom">koi seyo</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('fall in love. Classical imperative command form',this)"><div class="te-text">fall in love!</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('オトメ',this)"><div class="tj-word">オトメ</div><div class="tj-rom">otome</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('maiden or young woman',this)"><div class="te-text">maiden</div><div class="te-tag">EN</div></div>
+</div>
+<div class="note">From <strong>「ゴンドラの唄」</strong> (1915). All katakana strips the elegance — makes it raw.</div>
+<div class="nav-row"><button class="nav-btn" disabled>← Previous</button><button class="nav-btn" onclick="goTab('v1')">Verse 1 →</button></div>
+</div>
+
+<!-- ═══ VERSE 1 ═══ -->
+<div class="tab-panel" id="panel-v1">
+<button class="section-btn" onclick="speakEN('Verse 1, Childhood. She remembers the innocent girl she used to be. Going shopping with Mom in cute clothes.',this)">
+<div class="sb-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+<div class="sb-text"><span class="sb-title">Verse 1 — Childhood</span><span class="sb-desc">She remembers the innocent girl she used to be</span></div>
+<span class="sb-tag">EN</span></button>
+
+<div class="line-sep">Line 1: なんぼ汚れたアタシでも 子供の頃は可愛いかってね</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('なんぼ',this)"><div class="tj-word">なんぼ</div><div class="tj-rom">nanbo</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('no matter how much. Kansai dialect',this)"><div class="te-text">no matter how much · Kansai</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('汚れた',this)"><div class="tj-word">汚れた</div><div class="tj-rom">yogoreta</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('tainted or dirty. Past tense. Implies moral dirtiness, not physical',this)"><div class="te-text">tainted · past tense</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('アタシ',this)"><div class="tj-word">アタシ</div><div class="tj-rom">atashi</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('I or me. Casual feminine form. Katakana makes it feel rougher',this)"><div class="te-text">I / me · casual feminine</div><div class="te-tag">EN</div></div>
+<div class="tile-jp particle" onclick="speakJP('でも',this)"><div class="tj-word">でも</div><div class="tj-rom">demo</div><div class="tj-tag">PARTICLE</div></div>
+<div class="tile-en particle" onclick="speakEN('This particle means even if. It connects to her, saying even someone like me',this)"><div class="te-text">even if · connects to her</div><div class="te-tag">PARTICLE</div></div>
+<div class="tile-jp" onclick="speakJP('子供',this)"><div class="tj-word">子供</div><div class="tj-rom">kodomo</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('child',this)"><div class="te-text">child</div><div class="te-tag">EN</div></div>
+<div class="tile-jp particle" onclick="speakJP('の頃は',this)"><div class="tj-word">の頃は</div><div class="tj-rom">no koro wa</div><div class="tj-tag">PARTICLE</div></div>
+<div class="tile-en particle" onclick="speakEN('These particles mark an approximate time as the topic. Here: as for back when she was a child',this)"><div class="te-text">back when · topic marker</div><div class="te-tag">PARTICLE</div></div>
+<div class="tile-jp" onclick="speakJP('可愛い',this)"><div class="tj-word">可愛い</div><div class="tj-rom">kawaii</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('cute',this)"><div class="te-text">cute</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('かってね',this)"><div class="tj-word">かってね</div><div class="tj-rom">katte ne</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('they said, or apparently. Kansai dialect. Casual hearsay',this)"><div class="te-text">"they said" · Kansai</div><div class="te-tag">EN</div></div>
+</div>
+
+<div class="line-sep">Line 2: 休みの日には母さんと 可愛いベベ着てお買い物</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('休みの日',this)"><div class="tj-word">休みの日</div><div class="tj-rom">yasumi no hi</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('day off or holiday',this)"><div class="te-text">day off</div><div class="te-tag">EN</div></div>
+<div class="tile-jp particle" onclick="speakJP('には',this)"><div class="tj-word">には</div><div class="tj-rom">ni wa</div><div class="tj-tag">PARTICLE</div></div>
+<div class="tile-en particle" onclick="speakEN('This particle combination marks the specific time when something happens. On days off specifically',this)"><div class="te-text">on (time) · specific</div><div class="te-tag">PARTICLE</div></div>
+<div class="tile-jp" onclick="speakJP('母さん',this)"><div class="tj-word">母さん</div><div class="tj-rom">kaa-san</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('mom. Casual form',this)"><div class="te-text">mom</div><div class="te-tag">EN</div></div>
+<div class="tile-jp particle" onclick="speakJP('と',this)"><div class="tj-word">と</div><div class="tj-rom">to</div><div class="tj-tag">PARTICLE</div></div>
+<div class="tile-en particle" onclick="speakEN('This particle means together with. It links her and her mom as companions',this)"><div class="te-text">together with · companion</div><div class="te-tag">PARTICLE</div></div>
+<div class="tile-jp" onclick="speakJP('ベベ',this)"><div class="tj-word">ベベ</div><div class="tj-rom">bebe</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('baby clothes. Old fashioned Kansai baby talk for clothes',this)"><div class="te-text">baby clothes · Kansai</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('着て',this)"><div class="tj-word">着て</div><div class="tj-rom">kite</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('wearing. Te-form, linking this action to the next',this)"><div class="te-text">wearing · te-form</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('お買い物',this)"><div class="tj-word">お買い物</div><div class="tj-rom">okaimono</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('shopping. The o prefix adds politeness or cuteness',this)"><div class="te-text">shopping · お = cute</div><div class="te-tag">EN</div></div>
+</div>
+<div class="nav-row"><button class="nav-btn" onclick="goTab('title')">← Title</button><button class="nav-btn" onclick="goTab('v2')">Verse 2 →</button></div>
+</div>
+
+<!-- ═══ VERSE 2 ═══ -->
+<div class="tab-panel" id="panel-v2">
+<button class="section-btn" onclick="speakEN('Verse 2, Life slipping away. Every day flies by. She has given up on living long. So, life is short, fall in love.',this)">
+<div class="sb-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+<div class="sb-text"><span class="sb-title">Verse 2 — Life Slipping Away</span><span class="sb-desc">Time is fast; she's given up on living long</span></div>
+<span class="sb-tag">EN</span></button>
+
+<div class="line-sep">Line 1: 毎日は凄い早さで 気付いた時は消えてしまうけど</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('毎日',this)"><div class="tj-word">毎日</div><div class="tj-rom">mainichi</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('every day',this)"><div class="te-text">every day</div><div class="te-tag">EN</div></div>
+<div class="tile-jp particle" onclick="speakJP('は',this)"><div class="tj-word">は</div><div class="tj-rom">wa</div><div class="tj-tag">PARTICLE</div></div>
+<div class="tile-en particle" onclick="speakEN('This particle marks the topic. Here: as for every day',this)"><div class="te-text">topic marker</div><div class="te-tag">PARTICLE</div></div>
+<div class="tile-jp" onclick="speakJP('凄い',this)"><div class="tj-word">凄い</div><div class="tj-rom">sugoi</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('incredible or amazing',this)"><div class="te-text">incredible</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('早さ',this)"><div class="tj-word">早さ</div><div class="tj-rom">hayasa</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('speed. Noun form made from the adjective for fast',this)"><div class="te-text">speed · adj→noun</div><div class="te-tag">EN</div></div>
+<div class="tile-jp particle" onclick="speakJP('で',this)"><div class="tj-word">で</div><div class="tj-rom">de</div><div class="tj-tag">PARTICLE</div></div>
+<div class="tile-en particle" onclick="speakEN('This particle marks the manner. Here: at that speed, in that way',this)"><div class="te-text">by means of · manner</div><div class="te-tag">PARTICLE</div></div>
+<div class="tile-jp" onclick="speakJP('気付いた',this)"><div class="tj-word">気付いた</div><div class="tj-rom">kizuita</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('noticed or realized. Past tense',this)"><div class="te-text">noticed · past tense</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('時',this)"><div class="tj-word">時</div><div class="tj-rom">toki</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('time, or when. Here: by the time you notice',this)"><div class="te-text">when / by the time</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('消えてしまう',this)"><div class="tj-word">消えてしまう</div><div class="tj-rom">kiete shimau</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('to completely disappear. This grammar pattern adds regret, like it is gone for good and that is sad',this)"><div class="te-text">vanish completely · with regret</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('けど',this)"><div class="tj-word">けど</div><div class="tj-rom">kedo</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('but, although',this)"><div class="te-text">but</div><div class="te-tag">EN</div></div>
+</div>
+
+<div class="line-sep">Line 2: 長生きする気も無いから イノチミジカシコイセヨオトメ</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('長生き',this)"><div class="tj-word">長生き</div><div class="tj-rom">nagaiki</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('long life or longevity',this)"><div class="te-text">long life</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('する気',this)"><div class="tj-word">する気</div><div class="tj-rom">suru ki</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('intention to do something. The second character means spirit or will',this)"><div class="te-text">intention · will</div><div class="te-tag">EN</div></div>
+<div class="tile-jp particle" onclick="speakJP('も',this)"><div class="tj-word">も</div><div class="tj-rom">mo</div><div class="tj-tag">PARTICLE</div></div>
+<div class="tile-en particle" onclick="speakEN('This particle here means even. Combined with the negative, it means not even the intention',this)"><div class="te-text">even · "not even"</div><div class="te-tag">PARTICLE</div></div>
+<div class="tile-jp" onclick="speakJP('無い',this)"><div class="tj-word">無い</div><div class="tj-rom">nai</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('does not exist, or do not have',this)"><div class="te-text">don't have</div><div class="te-tag">EN</div></div>
+<div class="tile-jp particle" onclick="speakJP('から',this)"><div class="tj-word">から</div><div class="tj-rom">kara</div><div class="tj-tag">PARTICLE</div></div>
+<div class="tile-en particle" onclick="speakEN('This particle gives the reason. Because of what came before. Since she has no intention of living long...',this)"><div class="te-text">because · reason</div><div class="te-tag">PARTICLE</div></div>
+</div>
+<div class="nav-row"><button class="nav-btn" onclick="goTab('v1')">← Verse 1</button><button class="nav-btn" onclick="goTab('ch1')">Chorus →</button></div>
+</div>
+
+<!-- ═══ CHORUS ═══ -->
+<div class="tab-panel" id="panel-ch1">
+<button class="section-btn" onclick="speakEN('Chorus, Counting bills. Will I change by tomorrow? Will I smile? She counts three bills like flower petals. Love, hate, love. Fortune telling with money instead of flowers.',this)">
+<div class="sb-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+<div class="sb-text"><span class="sb-title">Chorus — Counting Bills</span><span class="sb-desc">Fortune-telling with money instead of flowers</span></div>
+<span class="sb-tag">EN</span></button>
+
+<div class="line-sep">明日には変われるやろか / 明日には笑えるやろか</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('明日',this)"><div class="tj-word">明日</div><div class="tj-rom">ashita</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('tomorrow',this)"><div class="te-text">tomorrow</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('変われる',this)"><div class="tj-word">変われる</div><div class="tj-rom">kawareru</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('can change. Potential form, expressing the possibility of changing',this)"><div class="te-text">can change · potential</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('笑える',this)"><div class="tj-word">笑える</div><div class="tj-rom">waraeru</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('can laugh or can smile. Potential form',this)"><div class="te-text">can smile · potential</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('やろか',this)"><div class="tj-word">やろか</div><div class="tj-rom">yaro ka</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('I wonder if. Kansai dialect. Softer, more intimate way of wondering',this)"><div class="te-text">I wonder if · Kansai</div><div class="te-tag">EN</div></div>
+</div>
+
+<div class="line-sep">札束三枚数えては 独りでつぶやく スキキライスキ</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('札束',this)"><div class="tj-word">札束</div><div class="tj-rom">satsutaba</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('a stack of bills or cash',this)"><div class="te-text">bills / cash</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('三枚',this)"><div class="tj-word">三枚</div><div class="tj-rom">san-mai</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('three flat objects. The counter is used for flat things like bills, paper, or petals',this)"><div class="te-text">three (flat things)</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('数えては',this)"><div class="tj-word">数えては</div><div class="tj-rom">kazoete wa</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('counting repeatedly. This grammar pattern indicates doing something over and over, wearily',this)"><div class="te-text">counting repeatedly</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('独りで',this)"><div class="tj-word">独りで</div><div class="tj-rom">hitori de</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('alone, by oneself',this)"><div class="te-text">alone</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('つぶやく',this)"><div class="tj-word">つぶやく</div><div class="tj-rom">tsubuyaku</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('to whisper or mutter',this)"><div class="te-text">to whisper</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('スキキライスキ',this)"><div class="tj-word">スキキライスキ</div><div class="tj-rom">suki kirai suki</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('love, hate, love. From the flower petal fortune telling game. You pull petals alternating love, hate. The last petal decides',this)"><div class="te-text">love, hate, love · petal game</div><div class="te-tag">EN</div></div>
+</div>
+<div class="nav-row"><button class="nav-btn" onclick="goTab('v2')">← Verse 2</button><button class="nav-btn" onclick="goTab('v3')">Verse 3 →</button></div>
+</div>
+
+<!-- ═══ VERSE 3 ═══ -->
+<div class="tab-panel" id="panel-v3">
+<button class="section-btn" onclick="speakEN('Verse 3, Her reality. She states flatly: I became a sex worker. Said twice, like a formal announcement. Then she dreams: if I were reborn, maybe I would be a regular office lady. Her dream is deliberately ordinary.',this)">
+<div class="sb-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+<div class="sb-text"><span class="sb-title">Verse 3 — Her Reality</span><span class="sb-desc">What she's become — and what she dreams of</span></div>
+<span class="sb-tag">EN</span></button>
+
+<div class="line-sep">ピンサロ嬢になりました (×2)</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('ピンサロ',this)"><div class="tj-word">ピンサロ</div><div class="tj-rom">pinsaro</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('a type of sex work establishment. Abbreviated slang',this)"><div class="te-text">sex work establishment</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('嬢',this)"><div class="tj-word">嬢</div><div class="tj-rom">jō</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('young lady or miss. Literally daughter. Here it means worker',this)"><div class="te-text">young lady · lit. daughter</div><div class="te-tag">EN</div></div>
+<div class="tile-jp particle" onclick="speakJP('に',this)"><div class="tj-word">に</div><div class="tj-rom">ni</div><div class="tj-tag">PARTICLE</div></div>
+<div class="tile-en particle" onclick="speakEN('This particle marks what she transformed into. The destination of becoming',this)"><div class="te-text">into · becoming</div><div class="te-tag">PARTICLE</div></div>
+<div class="tile-jp" onclick="speakJP('なりました',this)"><div class="tj-word">なりました</div><div class="tj-rom">narimashita</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('became. Polite past tense. The polite form is deliberately jarring here, like a formal self-introduction',this)"><div class="te-text">became · polite past</div><div class="te-tag">EN</div></div>
+</div>
+
+<div class="line-sep">生まれ変わったら何になろうかな</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('生まれ変わったら',this)"><div class="tj-word">生まれ変わったら</div><div class="tj-rom">umare kawattara</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('if I were reborn. The ending is a conditional meaning if',this)"><div class="te-text">if I were reborn</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('何に',this)"><div class="tj-word">何に</div><div class="tj-rom">nani ni</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('into what',this)"><div class="te-text">into what</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('なろうかな',this)"><div class="tj-word">なろうかな</div><div class="tj-rom">narō ka na</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('would I become, I wonder. Volitional form, softened into wondering to yourself',this)"><div class="te-text">would I become · wondering</div><div class="te-tag">EN</div></div>
+</div>
+
+<div class="line-sep">コピーにお茶汲みOLさん</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('コピー',this)"><div class="tj-word">コピー</div><div class="tj-rom">kopī</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('photocopying',this)"><div class="te-text">photocopying</div><div class="te-tag">EN</div></div>
+<div class="tile-jp particle" onclick="speakJP('に',this)"><div class="tj-word">に</div><div class="tj-rom">ni</div><div class="tj-tag">PARTICLE</div></div>
+<div class="tile-en particle" onclick="speakEN('This particle here lists activities. Photocopying and tea serving. It connects tasks',this)"><div class="te-text">and (listing tasks)</div><div class="te-tag">PARTICLE</div></div>
+<div class="tile-jp" onclick="speakJP('お茶汲み',this)"><div class="tj-word">お茶汲み</div><div class="tj-rom">ochakumi</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('tea serving. A stereotypical menial task for women in Japanese offices',this)"><div class="te-text">tea serving · office task</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('OLさん',this)"><div class="tj-word">OLさん</div><div class="tj-rom">ōeru san</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('office lady. Japanese English abbreviation. The honorific adds wistful respect for this ordinary life she dreams of',this)"><div class="te-text">office lady · wistful</div><div class="te-tag">EN</div></div>
+</div>
+<div class="nav-row"><button class="nav-btn" onclick="goTab('ch1')">← Chorus</button><button class="nav-btn" onclick="goTab('ch2')">Chorus 2 →</button></div>
+</div>
+
+<!-- ═══ CHORUS 2 ═══ -->
+<div class="tab-panel" id="panel-ch2">
+<button class="section-btn" onclick="speakEN('Chorus 2, Counting petals. Same structure as the first chorus, but now she counts flower petals instead of bills. And instead of whispering alone, she wonders if she could someday say it out loud.',this)">
+<div class="sb-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+<div class="sb-text"><span class="sb-title">Chorus 2 — Counting Petals</span><span class="sb-desc">Bills become petals — reaching toward hope</span></div>
+<span class="sb-tag">EN</span></button>
+
+<div class="line-sep">花びら三枚数えたら いつかは言えるか スキキライスキ</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('花びら',this)"><div class="tj-word">花びら</div><div class="tj-rom">hanabira</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('flower petal. In the first chorus she counted bills. Now petals. Same game, but something beautiful',this)"><div class="te-text">petal · was bills before!</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('数えたら',this)"><div class="tj-word">数えたら</div><div class="tj-rom">kazoetara</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('if I count. The ending is a conditional meaning if',this)"><div class="te-text">if I count · conditional</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('いつかは',this)"><div class="tj-word">いつかは</div><div class="tj-rom">itsuka wa</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('someday',this)"><div class="te-text">someday</div><div class="te-tag">EN</div></div>
+<div class="tile-jp" onclick="speakJP('言える',this)"><div class="tj-word">言える</div><div class="tj-rom">ieru</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('can say. Potential form. In the first chorus she whispered alone. Now she wonders if she could say it out loud',this)"><div class="te-text">can say · potential</div><div class="te-tag">EN</div></div>
+</div>
+<div class="nav-row"><button class="nav-btn" onclick="goTab('v3')">← Verse 3</button><button class="nav-btn" onclick="goTab('outro')">Outro →</button></div>
+</div>
+
+<!-- ═══ OUTRO ═══ -->
+<div class="tab-panel" id="panel-outro">
+<button class="section-btn" onclick="speakEN('Outro, Reaching out. The chorus is cut short. Just by tomorrow, by tomorrow, trailing off. Then the final line: could I say it to you? The full arc: first she whispers alone, then wonders if she could ever say it, and finally asks: could I say it to you? The song ends on that question.',this)">
+<div class="sb-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+<div class="sb-text"><span class="sb-title">Outro — Reaching Out</span><span class="sb-desc">From whispering alone → speaking to someone</span></div>
+<span class="sb-tag">EN</span></button>
+
+<div class="line-sep">明日には... 明日には...</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('明日には',this)"><div class="tj-word">明日には</div><div class="tj-rom">ashita ni wa</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('by tomorrow. Repeated twice and left hanging. The chorus is cut short, just trailing hope',this)"><div class="te-text">by tomorrow... (trailing)</div><div class="te-tag">EN</div></div>
+</div>
+
+<div class="line-sep">花びら三枚数えたら あんたに言えるか スキキライスキ</div>
+<div class="word-grid">
+<div class="tile-jp" onclick="speakJP('あんた',this)"><div class="tj-word">あんた</div><div class="tj-rom">anta</div><div class="tj-tag">JP</div></div>
+<div class="tile-en" onclick="speakEN('you. Casual, rough form. Intimate but not polite. She is now directing her feelings at a specific person',this)"><div class="te-text">you · casual, intimate</div><div class="te-tag">EN</div></div>
+<div class="tile-jp particle" onclick="speakJP('に',this)"><div class="tj-word">に</div><div class="tj-rom">ni</div><div class="tj-tag">PARTICLE</div></div>
+<div class="tile-en particle" onclick="speakEN('This particle marks who she is speaking to. She is directing her words at a specific person now, not just whispering alone',this)"><div class="te-text">to (person) · directed</div><div class="te-tag">PARTICLE</div></div>
+</div>
+<div class="note"><strong>The full arc:</strong><br>独りでつぶやく → whispers alone<br>いつかは言えるか → could I someday say it?<br>あんたに言えるか → could I say it to <em>you</em>?<br><br>The song ends on a question.</div>
+<div class="nav-row"><button class="nav-btn" onclick="goTab('ch2')">← Chorus 2</button><button class="nav-btn" onclick="goTab('grammar')">Grammar →</button></div>
+</div>
+
+<!-- ═══ GRAMMAR ═══ -->
+<div class="tab-panel" id="panel-grammar">
+<button class="section-btn" onclick="speakEN('Grammar patterns. These are the key grammar structures from the song. Learn these and you will hear them everywhere in Japanese.',this)">
+<div class="sb-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+<div class="sb-text"><span class="sb-title">Key Grammar Patterns</span><span class="sb-desc">Learn these and you'll hear them everywhere</span></div>
+<span class="sb-tag">EN</span></button>
+<div class="grammar-card"><div class="pattern">～ても / ～でも — "even if"</div><div class="explanation">Condition that doesn't change the outcome.</div><div class="example">なんぼ汚れた<strong>アタシでも</strong> → "even me, who is tainted"</div></div>
+<div class="grammar-card"><div class="pattern">～てしまう — regrettable completion</div><div class="explanation">Something happened completely, with regret. Casual: ～ちゃう</div><div class="example">消え<strong>てしまう</strong>けど → "completely disappears (sadly)"</div></div>
+<div class="grammar-card"><div class="pattern">～する気もない — "no intention to even..."</div><div class="explanation">気 (will) + も (even) + ない (not).</div><div class="example">長生き<strong>する気も無い</strong></div></div>
+<div class="grammar-card"><div class="pattern">～やろか — Kansai "I wonder"</div><div class="explanation">Kansai dialect. Softer, intimate wondering.</div><div class="example">変われる<strong>やろか</strong></div></div>
+<div class="grammar-card"><div class="pattern">～たら — conditional "if / when"</div><div class="explanation">One of the most common conditionals.</div><div class="example">生まれ変わっ<strong>たら</strong> · 数え<strong>たら</strong></div></div>
+<div class="grammar-card"><div class="pattern">～ては — repeated action</div><div class="explanation">Te-form + は = doing over and over, wearily.</div><div class="example">数え<strong>ては</strong></div></div>
+<div class="grammar-card"><div class="pattern">Potential form (～える / ～れる)</div><div class="explanation">"Can do." Longing for abilities she doesn't have.</div><div class="example">変わ<strong>れる</strong> · 笑<strong>える</strong> · 言<strong>える</strong></div></div>
+<div class="grammar-card"><div class="pattern">～になる — "to become"</div><div class="explanation">に (into) + なる (become).</div><div class="example">ピンサロ嬢<strong>になりました</strong> · 何<strong>になろう</strong></div></div>
+<div class="grammar-card"><div class="pattern">～かな — "I wonder"</div><div class="explanation">か + な. Wondering to yourself.</div><div class="example">何になろう<strong>かな</strong></div></div>
+<div class="nav-row"><button class="nav-btn" onclick="goTab('outro')">← Outro</button><button class="nav-btn" onclick="goTab('title')">Back to Start →</button></div>
+</div>
+
+</div>
+
+<script>
+var tabBtns=document.querySelectorAll('.tab-btn'),panels=document.querySelectorAll('.tab-panel');
+function goTab(id){tabBtns.forEach(function(b){b.classList.remove('active')});panels.forEach(function(p){p.classList.remove('active')});var btn=document.querySelector('[data-tab="'+id+'"]'),panel=document.getElementById('panel-'+id);if(btn)btn.classList.add('active');if(panel)panel.classList.add('active');if(btn)btn.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});window.scrollTo({top:0,behavior:'smooth'})}
+tabBtns.forEach(function(b){b.addEventListener('click',function(){goTab(b.dataset.tab)})});
+
+var API_KEY='AIzaSyC4DSjCwJa5Z6ZwxIv7TnbY_8mQ6rkztlg';
+var JA_VOICE='ja-JP-Neural2-B';
+var EN_VOICE='en-US-Neural2-F';
+var audioCache={};
+var currentAudio=null;
+var currentBtn=null;
+
+function clearBtn(){if(currentBtn){currentBtn.classList.remove('playing');currentBtn=null}}
+
+function ttsPlay(text,lang,voiceName,rate,btnEl){
+  if(currentAudio){currentAudio.pause();currentAudio=null}
+  clearBtn();
+  if(btnEl){btnEl.classList.add('playing');currentBtn=btnEl}
+
+  var cacheKey=lang+':'+text;
+  if(audioCache[cacheKey]){
+    var a=new Audio(audioCache[cacheKey]);
+    currentAudio=a;
+    a.onended=function(){clearBtn();currentAudio=null};
+    a.onerror=function(){clearBtn();currentAudio=null};
+    a.play();
+    return;
+  }
+
+  fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+API_KEY,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      input:{text:text},
+      voice:{languageCode:lang,name:voiceName},
+      audioConfig:{audioEncoding:'MP3',speakingRate:rate}
+    })
+  })
+  .then(function(r){return r.json()})
+  .then(function(data){
+    if(data.audioContent){
+      var src='data:audio/mp3;base64,'+data.audioContent;
+      audioCache[cacheKey]=src;
+      var a=new Audio(src);
+      currentAudio=a;
+      a.onended=function(){clearBtn();currentAudio=null};
+      a.onerror=function(){clearBtn();currentAudio=null};
+      a.play();
+    } else {console.error('TTS error:',data);clearBtn()}
+  })
+  .catch(function(err){console.error('TTS fetch error:',err);clearBtn()});
+}
+
+function speakJP(text,btnEl){ttsPlay(text,'ja-JP',JA_VOICE,0.85,btnEl)}
+function speakEN(text,btnEl){ttsPlay(text,'en-US',EN_VOICE,1.0,btnEl)}
+function speakBoth(jpText,enText){
+  ttsPlay(jpText,'ja-JP',JA_VOICE,0.85,null);
+  // After JP finishes, play EN
+  var check=setInterval(function(){
+    if(!currentAudio||currentAudio.ended){
+      clearInterval(check);
+      setTimeout(function(){ttsPlay(enText,'en-US',EN_VOICE,1.0,null)},400);
+    }
+  },100);
+}
+</script>
+</body>
+</html>
